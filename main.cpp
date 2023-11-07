@@ -598,6 +598,8 @@ void cumparaBilete(Evenimente ev, int nrBileteCumparate){
     }
 }
 
+//Codul a fost scris in XCode care da eroare daca folosesc void main()
+
 int main(){
     
     Locatie l1;
@@ -716,7 +718,8 @@ int main(){
     b3.afisare();
     
     
-   // cin>>b3;
+    cin>>b3;
+    cout<<"//////////////"<<endl;
     b3.afisare();
     
     if(e3>e1){
