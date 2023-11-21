@@ -621,6 +621,128 @@ void cumparaBilete(Evenimente ev, int nrBileteCumparate){
     }
 }
 
+//clasa has-a
+class Comenzi{
+private:
+    Bar bar;
+    int cantitate;
+    string numeProdus;
+    int pretProdus;
+    bool produsExista;
+public:
+    Comenzi(){
+        int i=0;
+        this->bar=Bar();
+        this->cantitate=2;
+        this->numeProdus="Bere";
+        this->produsExista=false;
+        while(i<this->bar.getNrProduse() && this->bar.getNumeProdus(i)!=this->numeProdus){
+            i++;
+        }
+        if(i<this->bar.getNrProduse()){
+            this->pretProdus=this->bar.getPretProdus(i);
+            this->produsExista=true;
+        }
+    }
+    
+    Comenzi(Bar bar, int cantitate, string numeProduse){
+        int i=0;
+        this->bar=bar;
+        this->cantitate=cantitate;
+        this->numeProdus=numeProduse;
+        this->produsExista=false;
+        while(i<this->bar.getNrProduse() && this->bar.getNumeProdus(i)!=this->numeProdus){
+            i++;
+        }
+        if(i<this->bar.getNrProduse()){
+            this->pretProdus=this->bar.getPretProdus(i);
+            this->produsExista=true;
+        }
+    }
+    
+    Comenzi(const Comenzi& c){
+        this->bar=c.bar;
+        this->cantitate=c.cantitate;
+        this->numeProdus=c.numeProdus;
+        this->pretProdus=c.pretProdus;
+        this->produsExista=c.produsExista;
+    }
+    
+    ~Comenzi(){}
+    
+    Bar getBar(){
+        return this->bar;
+    }
+    void setBar(const Bar& barNou){
+        this->bar=barNou;
+    }
+    
+    int getCantitate(){
+        return this->cantitate;
+    }
+    void setCantitate(int cantitateNoua){
+        this->cantitate=cantitateNoua;
+    }
+    
+    string getNume(){
+        return this->numeProdus;
+    }
+    void setNume(string numeNou){
+        this->numeProdus=numeNou;
+    }
+    
+    int getPret(){
+        return this->pretProdus;
+    }
+    void setPret(int pretNou){
+        this->pretProdus=pretNou;
+    }
+    
+    
+    Comenzi& operator=(const Comenzi& c){
+        if(this!=&c){
+            this->bar=c.bar;
+            this->cantitate=c.cantitate;
+            this->numeProdus=c.numeProdus;
+            this->pretProdus=c.pretProdus;
+            this->produsExista=c.produsExista;
+        }
+        
+        
+        return *this;
+    }
+    
+    friend ostream& operator<<(ostream& os, const Comenzi& c){
+        if(c.produsExista){
+            os<<"Comanda dvs: "<<endl;
+            os<<c.numeProdus<<" x"<<c.cantitate<<" "<<c.pretProdus*c.cantitate<<" lei"<<endl;
+        }
+        else{
+            cout<<"Produsul nu exista, afisare indisponibila."<<endl;
+        }
+        
+        return os;
+    }
+    
+    Comenzi operator*(int i){
+        Comenzi rez(*this);
+        rez.setPret(rez.getPret()*i);
+        
+        return rez;
+    }
+    
+    
+    void afisare(){
+        if(produsExista){
+            cout<<"Comanda dvs: "<<endl;
+            cout<<this->numeProdus<<" x"<<this->cantitate<<" "<<this->pretProdus*this->cantitate<<" lei"<<endl;
+        }
+        else{
+            cout<<"Produsul nu exista, afisare indisponibila."<<endl;
+        }
+    }
+};
+
 int main(){
     
     Locatie l1;
@@ -739,10 +861,6 @@ int main(){
     b3.afisare();
     
     
-    cin>>b3;
-    cout<<"//////////////"<<endl;
-    b3.afisare();
-    
     if(e3>e1){
         cout<<"Ev. e3 e mai scump decat ev. e1"<<endl;
     }
@@ -756,6 +874,28 @@ int main(){
     cout<<e6.getNrArtisti()<<endl;
     rez=e6-e4;
     cout<<"Diferenta de artisti dintre e4 si e6: "<<rez.nrArtisti<<endl;
+   
+    Comenzi c1;
+    c1.afisare();
+    Comenzi c2(b3, 3, "Bere");
+    c2.afisare();
+    
+    Comenzi c3=c2;
+    cout<<"Verificare constructor copiere clasa has-a"<<endl;
+    c3.afisare();
+    Comenzi c4(b3, 2, "Cocktail");
+    Comenzi c5;
+    cout<<"afisare c5 inainte de operator="<<endl;
+    c5.afisare();
+    c5=c4;
+    cout<<"afisare dupa operator=, folosind operator<< "<<endl;
+    cout<<c5<<endl;
+    cout<<"Verificare operator*"<<endl;
+    cout<<c5*2<<endl;
+    
+    cin>>b3;
+    cout<<"//////////////"<<endl;
+    b3.afisare();
     
     int num_loc;
     int num_bar;
