@@ -385,6 +385,18 @@ public:
         
         return temp;
     }
+
+    friend ostream& operator<<(ostream& os, const Bar& b){
+        os<<"Meniu bar"<<endl;
+        for(int i=0; i<b.nrProduse; i++){
+            os<<b.produse[i]<<" "<<b.pretProduse[i]<<endl;
+        }
+        os<<"Preturile includ TVA"<<endl;
+        os<<"Nr. licenta: "<<b.nrLicenta<<endl;
+        os<<"---------------------------"<<endl;
+        
+        return os;
+    }
     
     friend istream& operator>>(istream& is, Bar& b){
         cout<<"Introduceti nr produse: "<<endl;
@@ -563,7 +575,18 @@ public:
         this->dataEveniment = ev.dataEveniment;
     }
     
-    
+    friend ostream& operator<<(ostream& os, const Evenimente& e){
+        os<<"Nr artisti: "<<e.nrArtisti<<endl;
+        os<<"Artisti: "<<endl;
+        for(int i=0; i<e.nrArtisti; i++){
+            os<<e.numeArtisti[i]<<endl;
+        }
+        os<<"Pret: "<<e.pretBilet<<endl;
+        os<<e.dataEveniment<<endl;
+        
+        
+        return os;
+    }
     
     void afisare(){
         
@@ -597,8 +620,6 @@ void cumparaBilete(Evenimente ev, int nrBileteCumparate){
         cout<<"Nu mai sunt destule bilete."<<endl;
     }
 }
-
-//Codul a fost scris in XCode care da eroare daca folosesc void main()
 
 int main(){
     
@@ -736,8 +757,115 @@ int main(){
     rez=e6-e4;
     cout<<"Diferenta de artisti dintre e4 si e6: "<<rez.nrArtisti<<endl;
     
+    int num_loc;
+    int num_bar;
+    int num_ev;
+    
+    cout<<"Cate obiecte de tip Locatie doriti sa creati?"<<endl;
+    cin>>num_loc;
+    Locatie vectorLocatii[num_loc];
+    cout<<"Vector obiecte clasa Locatie: "<<endl;
+      for(int i=0; i<num_loc; i++){
+          cout<<"Locatie "<<i+1<<": "<<endl;
+          vectorLocatii[i]=Locatie();
+          string numeClub;
+          int nrAngajati;
+          int* salariiAngajati;
+          cout<<"Introduceti numele clubului: "<<endl;
+          cin>>numeClub;
+          vectorLocatii[i].setNumeClub(numeClub);
+          cout<<"Introduceti numarul angajatilor: "<<endl;
+          cin>>nrAngajati;
+          salariiAngajati=new int[nrAngajati];
+          vectorLocatii[i].setNrAngajati(nrAngajati, salariiAngajati);
+          cout<<"Introduceti salariile: "<<endl;
+          for(int j=0; j<nrAngajati; j++){
+              cout<<"Salariul "<<j+1<<": "<<endl;
+              cin>>salariiAngajati[j];
+              vectorLocatii[i].setSalariuAngajat(j, salariiAngajati[j]);
+          }
+}
+    cout<<"////////////////////////////////"<<endl;
+    cout<<"Extragere vector"<<endl;
+    for(int i=0; i<num_loc;i++){
+        cout<<"Locatie"<<i+1<<": "<<endl;
+        cout<<vectorLocatii[i]<<endl;
+        cout<<"/////////////////////"<<endl;
+    }
+   
+    cout<<"Cate obiecte de tip Bar doriti sa creati?"<<endl;
+    cin>>num_bar;
+    Bar vectorBaruri[num_bar];
+    cout<<"Vector obiecte clasa Bar: "<<endl;
+    for(int i=0; i<num_bar;i++){
+        cout<<"Bar"<<i+1<<": "<<endl;
+        vectorBaruri[i]=Bar();
+        int nrProduse;
+        cout<<"Introduceti numarul produselor: "<<endl;
+        cin>>nrProduse;
+        string* produse=new string[nrProduse];
+        int* pretProduse=new int[nrProduse];
+        vectorBaruri[i].setNrProduse(nrProduse, produse, pretProduse);
+        for(int j=0; j<nrProduse;j++){
+            cin.ignore();
+            cout<<"Introduceti produsul "<<j+1<<": "<<endl;
+            getline(cin,produse[j]);
+            vectorBaruri[i].setNumeProdus(j, produse[j]);
+            cout<<"Introduceti pretul produsului "<<j+1<<": "<<endl;
+            cin>>pretProduse[j];
+            vectorBaruri[i].setPretProdus(j, pretProduse[j]);
+        }
+    }
+    cout<<"Extragere vector"<<endl;
+    for(int i=0;i<num_bar;i++){
+        cout<<"Bar"<<i+1<<": "<<endl;
+        cout<<vectorBaruri[i]<<endl;
+        cout<<"/////////////////////"<<endl;
+    }
     
     
+    cout<<"Cate obiecte de tip Evenimente doriti sa creati?"<<endl;
+    cin>>num_ev;
+    Evenimente vectorEvenimente[num_ev];
+    cout<<"Vector obiecte clasa Evenimente: "<<endl;
+    for(int i=0; i<num_ev;i++){
+        cout<<"Eveniment"<<i+1<<": "<<endl;
+        vectorEvenimente[i]=Evenimente();
+        int nrArtisti;
+        string dataEveniment;
+        int pretBilet;
+        cout<<"Introduceti nr artisti: "<<endl;
+        cin>>nrArtisti;
+        string* numeArtisti=new string[nrArtisti];
+        vectorEvenimente[i].setNrArtisti(nrArtisti, numeArtisti);
+        cin.ignore();
+        for(int j=0; j<nrArtisti;j++){
+            cout<<"Introduceti artistul "<<j+1<<": "<<endl;
+            getline(cin, numeArtisti[j]);
+            vectorEvenimente[i].setNumeArtist(j, numeArtisti[j]);
+        }
+        cout<<"Introduceti data evenimentului: "<<endl;
+        cin>>dataEveniment;
+        vectorEvenimente[i].setDataEveniment(dataEveniment);
+    }
+    cout<<"Extragere vector"<<endl;
+    for(int i=0;i<num_ev;i++){
+        cout<<"Eveniment"<<i+1<<": "<<endl;
+        cout<<vectorEvenimente[i]<<endl;
+        cout<<"/////////////////////"<<endl;
+    }
+    
+    Bar** matriceBar= new Bar*[num_bar];
+    for(int i=0; i<num_bar; i++){
+        matriceBar[i]=vectorBaruri;
+    }
+    cout<<"Verificare matrice Bar"<<endl;
+    for(int i=0; i<num_bar; i++){
+        for(int j=0; j<num_bar; j++){
+            cout<<"matriceBar["<<i<<"]["<<j<<"]: "<<endl;
+            cout<<matriceBar[i][j]<<endl;
+        }
+    }
     
     return 0;
 }
