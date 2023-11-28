@@ -973,7 +973,6 @@ int main(){
         vectorEvenimente[i]=Evenimente();
         int nrArtisti;
         string dataEveniment;
-        int pretBilet;
         cout<<"Introduceti nr artisti: "<<endl;
         cin>>nrArtisti;
         string* numeArtisti=new string[nrArtisti];
