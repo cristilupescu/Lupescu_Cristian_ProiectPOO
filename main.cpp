@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -165,7 +166,7 @@ public:
         os << "Varsta minima pentru intrare: " << l.varstaMinima << endl;
         os << "Capacitate club: " << l.capacitate << endl;
         os << "Numar angajati: " << l.nrAngajati << endl;
-        if (l.salariiAngajati == nullptr) {
+        if (l.nrAngajati<=0) {
             os << "Nu exista date salariale" << endl;
         }
         else {
@@ -176,6 +177,41 @@ public:
         }
 
         return os;
+    }
+
+    friend ofstream& operator<<(ofstream& of, const Locatie& l) {
+        of << l.numeClub << endl;
+        of << l.varstaMinima << endl;
+        of << l.capacitate << endl;
+        of << l.nrAngajati << endl;
+        if (l.nrAngajati==0) {
+            of << "Nu exista date salariale" << endl;
+        }
+        else {
+            for (int i = 0; i < l.nrAngajati; i++) {
+                of << l.salariiAngajati[i] << endl;
+            }
+            
+        }
+
+        return of;
+    }
+
+    friend ifstream& operator>>(ifstream& in, Locatie& l) {
+        getline(in, l.numeClub);
+        int val = 0;
+        in >> val;//varstaMinima
+        in >> val;//capacitate
+        in >> l.nrAngajati;
+        if (l.nrAngajati == 0) {
+            return in;
+        }
+        else {
+            for (int i = 0; i < l.nrAngajati; i++) {
+                in >> l.salariiAngajati[i];
+            }
+            return in;
+        }
     }
 
     void afisare() {
@@ -386,7 +422,7 @@ public:
 
         return temp;
     }
-
+    
     friend ostream& operator<<(ostream& os, const Bar& b) {
         os << "Meniu bar" << endl;
         for (int i = 0; i < b.nrProduse; i++) {
@@ -399,10 +435,24 @@ public:
         return os;
     }
 
+    friend ofstream& operator<<(ofstream& of, const Bar& b) {
+        of << b.nrProduse << endl;
+        for (int i = 0; i < b.nrProduse; i++) {
+            of << b.produse[i] << endl;
+            of<<b.pretProduse[i] << endl;
+        }
+        of << b.TVA << endl;
+        of << b.nrLicenta << endl;
+
+        return of;
+    }
+
+
     friend istream& operator>>(istream& is, Bar& b) {
         cout << "Introduceti nr produse: " << endl;
         is >> b.nrProduse;
         cout << "Introduceti produsele si pretul lor: " << endl;
+        
         if (b.nrProduse > 0) {
             for (int i = 0; i < b.nrProduse; i++) {
                 is >> b.produse[i];
@@ -413,6 +463,20 @@ public:
         is >> b.TVA;
 
         return is;
+    }
+
+    friend ifstream& operator>>(ifstream& in, Bar& b) {
+        in >> b.nrProduse;
+       
+        for (int i = 0; i < b.nrProduse; i++) {
+            in >> b.produse[i];
+            in >> b.pretProduse[i];
+        }
+        float val = 0;
+        in >> val;//TVA
+        in >>val;//nrLicenta
+        return in;
+
     }
 
     void afisare() {
@@ -472,7 +536,7 @@ public:
             numeArtisti = new string[nrNouArtisti];
 
             for (int i = 0; i < nrNouArtisti; i++) {
-                numeArtisti[i] = numeNoiArtisti[i];
+                this->numeArtisti[i] = numeNoiArtisti[i];
             }
         }
     }
@@ -538,10 +602,10 @@ public:
 
     Evenimente& operator=(const Evenimente& ev) {
         if (this != &ev) {
-            this->nrArtisti = ev.nrArtisti;
             if (this->numeArtisti != nullptr) {
                 delete[]this->numeArtisti;
             }
+            this->nrArtisti = ev.nrArtisti;
             this->numeArtisti = new string[this->nrArtisti];
             for (int i = 0; i < this->nrArtisti; i++) {
                 this->numeArtisti[i] = ev.numeArtisti[i];
@@ -897,11 +961,19 @@ int main() {
     cin >> b3;
     cout << "//////////////" << endl;
     b3.afisare();
+    
+
+
+
+
+
+
+
 
     int num_loc;
     int num_bar;
     int num_ev;
-
+    /*
     cout << "Cate obiecte de tip Locatie doriti sa creati?" << endl;
     cin >> num_loc;
     Locatie* vectorLocatii=new Locatie[num_loc];
@@ -994,7 +1066,7 @@ int main() {
         cout << vectorEvenimente[i] << endl;
         cout << "/////////////////////" << endl;
     }
-
+    
     Bar** matriceBar = new Bar * [num_bar];
     for (int i = 0; i < num_bar; i++) {
         matriceBar[i] = vectorBaruri;
@@ -1006,6 +1078,44 @@ int main() {
             cout << matriceBar[i][j] << endl;
         }
     }
+    */
 
+
+
+
+
+    cout << "Verificare fisiere text Locatie" << endl;
+    int salarii8[] = {2000,3000,4000};
+    Locatie l8("Subteran", 3, salarii8, 200);
+    ofstream file1("fisierLocatie1.txt", ios::out);
+    file1 << l8;
+    file1.close();
+    ifstream citire1("fisierLocatie1.txt", ios::in);
+    Locatie l9;
+    citire1 >> l9;
+    cout << l9 << endl;
+    citire1.close();
+    int salarii10[1] = {};
+    Locatie l10("Tete a tete", 0, salarii10, 200);
+    ofstream file2("fisierLocatie2.txt", ios::out);
+    file2 << l10;
+    file2.close();
+    ifstream citire2("fisierLocatie2.txt", ios::in);
+    Locatie l11;
+    citire2 >> l11;
+    cout << l11<<endl;
+    citire2.close();
+    cout << "Verificare fisiere text Bar" << endl;
+    Bar b8;
+    cin >> b8;
+    ofstream file("fisierBar.txt", ios::out);
+    file << b8;
+    file.close();
+    ifstream citire("fisierBar.txt", ios::in);
+    Bar b9;
+    citire >> b9;
+    cout << b9 << endl;
+    citire.close();
+    
     return 0;
 }
