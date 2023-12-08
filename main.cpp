@@ -46,10 +46,10 @@ public:
                 delete[]this->salariiAngajati;
             }
 
-            salariiAngajati = new int[nrAngajati];
+            this->salariiAngajati = new int[nrAngajati];
 
             for (int i = 0; i < nrAngajati; i++) {
-                salariiAngajati[i] = salariiNoi[i];
+                this->salariiAngajati[i] = salariiNoi[i];
             }
 
         }
@@ -478,6 +478,64 @@ public:
         return in;
 
     }
+    void scriere(const char* fileName) const {
+        ofstream file(fileName, ios::binary | ios::out);
+
+        file.write((char*)&nrProduse, sizeof(int));
+
+        for (int i = 0; i < nrProduse; ++i) {
+            int produsLungime = produse[i].length() + 1;
+            file.write((char*)&produsLungime, sizeof(int));
+            file.write(produse[i].c_str(), produsLungime);
+
+            // Check that the index is within bounds before writing
+            if (i < nrProduse) {
+                file.write((char*)&pretProduse[i], sizeof(int));
+            }
+        }
+
+        file.write((char*)&TVA, sizeof(float));
+        file.write((char*)&nrLicenta, sizeof(int));
+
+        file.close();
+    }
+
+    void citire(const std::string& fileName) {
+        ifstream file(fileName, ios::binary | ios::in);
+
+        if (produse != nullptr) {
+            delete[] produse;
+        }
+        if (pretProduse != nullptr) {
+            delete[] pretProduse;
+        }
+
+        file.read((char*)&nrProduse, sizeof(int));
+
+        produse = new string[nrProduse];
+        pretProduse = new int[nrProduse];
+        for (int i = 0; i < nrProduse; ++i) {
+            int numeLungime;
+            file.read((char*)&numeLungime, sizeof(int));
+
+            char* nume = new char[numeLungime];
+            file.read(nume, numeLungime);
+            produse[i] = string(nume);
+            delete[] nume;
+
+            if (i < nrProduse) {
+                file.read((char*)&pretProduse[i], sizeof(int));
+            }
+        }
+
+        file.read((char*)&TVA, sizeof(float));
+        file.read((char*)&nrLicenta, sizeof(int));
+
+        file.close();
+    }
+
+
+
 
     void afisare() {
         cout << "Meniu bar" << endl;
@@ -515,30 +573,30 @@ void TVAComanda(Bar bar, const string& numeProdus, int cantitate) {
 
 
 class Evenimente {
-public:
+private:
     int nrArtisti;
     string* numeArtisti;
     string dataEveniment;
     const int pretBilet;
     static int nrBileteDisponibile;
-
+public:
 
     int getNrArtisti() {
         return nrArtisti;
     }
 
-    void setNrArtisti(int nrNouArtisti, string* numeNoiArtisti) {
-        if (nrNouArtisti >= 0) {
-            this->nrArtisti = nrNouArtisti;
-            if (this->numeArtisti != NULL) {
-                delete[]this->numeArtisti;
-            }
-            numeArtisti = new string[nrNouArtisti];
-
-            for (int i = 0; i < nrNouArtisti; i++) {
-                this->numeArtisti[i] = numeNoiArtisti[i];
-            }
+    void setNrArtisti(int nrNouArtisti, const string* numeNoiArtisti) {
+        if (this->numeArtisti != nullptr) {
+            delete[] this->numeArtisti;
         }
+
+        this->numeArtisti = new string[nrNouArtisti];
+
+        for (int i = 0; i < nrNouArtisti; i++) {
+            this->numeArtisti[i] = numeNoiArtisti[i];
+        }
+
+        this->nrArtisti = nrNouArtisti;
     }
 
     string getNumeArtist(int i) {
@@ -603,15 +661,24 @@ public:
     Evenimente& operator=(const Evenimente& ev) {
         if (this != &ev) {
             if (this->numeArtisti != nullptr) {
-                delete[]this->numeArtisti;
+                delete[] this->numeArtisti;
             }
+
             this->nrArtisti = ev.nrArtisti;
-            this->numeArtisti = new string[this->nrArtisti];
-            for (int i = 0; i < this->nrArtisti; i++) {
-                this->numeArtisti[i] = ev.numeArtisti[i];
+
+            if (ev.numeArtisti != nullptr) {
+                this->numeArtisti = new string[ev.nrArtisti];
+                for (int i = 0; i < ev.nrArtisti; i++) {
+                    this->numeArtisti[i] = ev.numeArtisti[i];
+                }
             }
+            else {
+                this->numeArtisti = nullptr;
+            }
+
             this->dataEveniment = ev.dataEveniment;
         }
+
         return *this;
     }
 
@@ -633,10 +700,17 @@ public:
 
     Evenimente(const Evenimente& ev) : pretBilet(ev.pretBilet) {
         this->nrArtisti = ev.nrArtisti;
-        this->numeArtisti = new string[nrArtisti];
-        for (int i = 0; i < nrArtisti; i++) {
-            this->numeArtisti[i] = ev.numeArtisti[i];
+
+        if (ev.numeArtisti != nullptr) {
+            this->numeArtisti = new string[ev.nrArtisti];
+            for (int i = 0; i < ev.nrArtisti; i++) {
+                this->numeArtisti[i] = ev.numeArtisti[i];
+            }
         }
+        else {
+            this->numeArtisti = nullptr;
+        }
+
         this->dataEveniment = ev.dataEveniment;
     }
 
@@ -652,6 +726,58 @@ public:
 
         return os;
     }
+    void scriere(const char* fileName){
+        ofstream file(fileName, ios::binary | ios::out);
+
+        file.write((char*)&nrArtisti, sizeof(int));
+
+        for (int i = 0; i < nrArtisti; ++i) {
+            int numeLungime = numeArtisti[i].length() + 1;
+            file.write((char*)&numeLungime, sizeof(int));
+            file.write(numeArtisti[i].c_str(), numeLungime);
+        }
+
+        int dataLungime = dataEveniment.length() + 1;
+        file.write((char*)&dataLungime, sizeof(int));
+        file.write(dataEveniment.c_str(), dataLungime);
+
+        file.write((char*)&pretBilet, sizeof(int));
+        file.write((char*)&nrBileteDisponibile, sizeof(int));
+
+        file.close();
+    }
+    void citire(const std::string& fileName) {
+        ifstream file(fileName, ios::binary | ios::in);
+
+        if (numeArtisti != nullptr) {
+            delete[] numeArtisti;
+        }
+        file.read((char*)&nrArtisti, sizeof(int));
+
+        numeArtisti = new string[nrArtisti];
+        for (int i = 0; i < nrArtisti; ++i) {
+            int numeLungime;
+            file.read((char*)&numeLungime, sizeof(int));
+
+            char* nume = new char[numeLungime];
+            file.read(nume, numeLungime);
+            numeArtisti[i] = string(nume);
+            delete[] nume;
+        }
+
+        int dataLungime;
+        file.read((char*)&dataLungime, sizeof(int));
+        char* data = new char[dataLungime];
+        file.read(data, dataLungime);
+        dataEveniment = string(data);
+        delete[] data;
+
+        file.read((char*)&pretBilet, sizeof(int));
+        file.read((char*)&nrBileteDisponibile, sizeof(int));
+
+        file.close();
+    }
+
 
     void afisare() {
 
@@ -677,8 +803,10 @@ int Evenimente::nrBileteDisponibile = 150;
 
 void cumparaBilete(Evenimente ev, int nrBileteCumparate) {
     if (nrBileteCumparate <= ev.getNrBileteDisponibile()) {
-        Evenimente::nrBileteDisponibile -= nrBileteCumparate;
-        cout << "Suma totala: " << nrBileteCumparate * ev.pretBilet << " lei" << endl;
+        int bilDisp = ev.getNrBileteDisponibile();
+        bilDisp-= nrBileteCumparate;
+        ev.setNrBileteDisponibile(bilDisp);
+        cout << "Suma totala: " << nrBileteCumparate * ev.getPretBilet() << " lei" << endl;
         cout << "Au mai ramas " << ev.getNrBileteDisponibile() << " bilete!" << endl;
     }
     else {
@@ -700,6 +828,7 @@ public:
         this->bar = Bar();
         this->cantitate = 2;
         this->numeProdus = "Bere";
+        this->pretProdus = 0;
         this->produsExista = false;
         while (i < this->bar.getNrProduse() && this->bar.getNumeProdus(i) != this->numeProdus) {
             i++;
@@ -715,6 +844,7 @@ public:
         this->bar = bar;
         this->cantitate = cantitate;
         this->numeProdus = numeProduse;
+        this->pretProdus = 0;
         this->produsExista = false;
         while (i < this->bar.getNrProduse() && this->bar.getNumeProdus(i) != this->numeProdus) {
             i++;
@@ -805,6 +935,63 @@ public:
         else {
             cout << "Produsul nu exista, afisare indisponibila." << endl;
         }
+    }
+};
+
+//clase is-a
+class TipClub :public Locatie {
+private:
+    string tipClub;
+public:
+    TipClub() : Locatie(), tipClub("Nightclub") {}
+
+    TipClub(string numeClub, string tip):Locatie(numeClub),tipClub(tip) {}
+
+    TipClub(string numeClub, int nrAngajati, int* salarii, int cap, string tip):Locatie( numeClub, nrAngajati, salarii, cap), tipClub(tip) {}
+
+    TipClub(const TipClub& tc):Locatie(tc){
+        this->tipClub = tc.tipClub;
+    }
+
+    string getTipClub() {
+        return this->tipClub;
+    }
+
+    void setTipClub(string tip) {
+        this->tipClub = tip;
+    }
+
+    void afisare() {
+        cout << "Nume club: "<<getNumeClub() << endl;
+        cout << "Tip club: " << this->tipClub<<endl;
+    }
+};
+
+class InfoEvenimente : public Evenimente {
+private:
+    string locatie;
+public:
+    InfoEvenimente() : Evenimente(), locatie("Beluga") {}
+    InfoEvenimente(string data, string locatie) :Evenimente(data), locatie(locatie) {}
+    InfoEvenimente(int nrArtisti, string* nume, string dataEveniment, int pret, string locatie) :Evenimente(nrArtisti, nume, dataEveniment, pret), locatie(locatie) {}
+    InfoEvenimente(const InfoEvenimente& te) : Evenimente(te) {
+        this->locatie = te.locatie;
+    }
+
+    string getLocatie() {
+        return this->locatie;
+    }
+
+    void setLocatie(string locatie) {
+        this->locatie=locatie;
+    }
+
+    
+
+    void afisare() {
+        Evenimente::afisare();
+        cout << "Locatie: " << this->locatie << endl;
+        cout << "//////////////////////////////" << endl;
     }
 };
 
@@ -938,7 +1125,7 @@ int main() {
     cout << e4.getNrArtisti() << endl;
     cout << e6.getNrArtisti() << endl;
     rez = e6 - e4;
-    cout << "Diferenta de artisti dintre e4 si e6: " << rez.nrArtisti << endl;
+    cout << "Diferenta de artisti dintre e4 si e6: " << rez.getNrArtisti() << endl;
 
     Comenzi c1;
     c1.afisare();
@@ -1116,6 +1303,59 @@ int main() {
     citire >> b9;
     cout << b9 << endl;
     citire.close();
+
+
+    Bar b10(3, produse, pretProduse, 789);
+    b10.scriere("Bar.dat");
+    Bar b11;
+    cout << "Fisier binar Bar" << endl;
+    b11.citire("Bar.dat");
+    b11.afisare();
+    Evenimente e10(3, nume, "16-12-2023", 300);
+    e10.scriere("Evenimente.dat");
+    cout << "Fisier binar Evenimente" << endl;
+    Evenimente e11;
+    e11.citire("Evenimente.dat");
+    e11.afisare();
+
+
+    TipClub tc1;
+    tc1.afisare();
+    cout << "Getter tipClub" << endl;
+    cout << tc1.getTipClub() << endl;
+    TipClub tc2("Mojo", "Karaoke");
+    tc2.afisare();
+    //int salarii[] = { 4000, 4500, 5000, 5500, 6500 };
+    TipClub tc3("Subteran", 5, salarii, 300, "Techno");
+    TipClub tc4=tc3;
+    Locatie* l12 = &tc3;//upcasting
+    tc3.setTipClub("EDM");
+    cout << "Verificare upcasting" << endl;
+    l12->afisare();
+    cout << "Verificarea constructorului de copiere a clase TipClub" << endl;
+    tc4.afisare();
+
+    InfoEvenimente ie1;
+    ie1.afisare();
+    cout << "Getter locatie" << endl;
+    cout << ie1.getLocatie() << endl;
+    cout << endl << "ie2" << endl;
+    InfoEvenimente ie2("10-11-2023", "Silver Church");
+    ie2.afisare();
+    InfoEvenimente ie3(3, nume, "16-12-2023", 300, "Nuba");
+    InfoEvenimente ie4 = ie3;
+    ie3.setLocatie("Wicked");
+    ie3.afisare();
+    ie4.afisare();
+
+    
+
+
+
+    
+    
+    
+
     
     return 0;
 }
